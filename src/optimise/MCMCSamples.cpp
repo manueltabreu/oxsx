@@ -24,6 +24,16 @@ void MCMCSamples::SetSaveChain(bool b_)
     fSaveChain = b_;
 }
 
+bool MCMCSamples::GetSaveProposedSteps() const
+{
+    return fSaveProposedSteps;
+}
+
+void MCMCSamples::SetSaveProposedSteps(bool b_)
+{
+    fSaveProposedSteps = b_;
+}
+
 void MCMCSamples::FillProjections(const ParameterDict &params_)
 {
     // 1D
@@ -147,7 +157,14 @@ void MCMCSamples::Fill(const ParameterDict &params_, double val_, bool accepted_
     if (accepted_)
         fAcceptedSteps++;
 
-    if (fSaveChain)
+    fTotalSteps++;
+}
+
+
+void MCMCSamples::FillTree(const ParameterDict &params_, double val_, bool accepted_)
+{
+
+if (fSaveChain)
     {
         int parameterNumber = 0;
         for (ParameterDict::const_iterator it = params_.begin(); it != params_.end(); ++it)
@@ -161,9 +178,7 @@ void MCMCSamples::Fill(const ParameterDict &params_, double val_, bool accepted_
         fStepTime = stepClock.RealTime();
         stepClock.Start();
         fChain->Fill();
-    }
-
-    fTotalSteps++;
+   	}
 }
 
 const std::map<std::string, Histogram> &

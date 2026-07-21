@@ -15,8 +15,10 @@ public:
                          fFlipSign(false),
                          fMaxVal(0),
                          fCurrentVal(0.),
+                         fProposedVal(0.),
                          fSamples(this),
                          pTestStatistic(NULL),
+                         fSaveProposedSteps(false),
                          fSampler(s_)
    {
    }
@@ -52,6 +54,9 @@ public:
    bool GetSaveChain() const;
    void SetSaveChain(bool);
 
+   bool GetSaveProposedSteps() const;
+   void SetSaveProposedSteps(bool);
+
    void SetHistogramAxes(const AxisCollection &);
    AxisCollection GetHistogramAxes() const;
 
@@ -69,9 +74,11 @@ private:
 
    double fMaxVal;
    double fCurrentVal;
+   double fProposedVal;
    FitResult fFitResult;
    ParameterDict fBestFit;
    ParameterDict fCurrentStep;
+   ParameterDict fProposedStep;
 
    MCMCSamples fSamples;
 
@@ -86,5 +93,6 @@ private:
 
    bool StepAccepted(const ParameterDict &proposedStep_);
    bool fSaveChain;
+   bool fSaveProposedSteps;
 };
 #endif

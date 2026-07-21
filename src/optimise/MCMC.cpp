@@ -121,6 +121,17 @@ void MCMC::SetSaveChain(bool b_)
     fSamples.SetSaveChain(fSaveChain);
 }
 
+bool MCMC::GetSaveProposedSteps() const
+{
+    return fSaveProposedSteps;
+}
+
+void MCMC::SetSaveProposedSteps(bool b_)
+{
+    fSaveProposedSteps = b_;
+    fSamples.SetSaveProposedSteps(b_);
+}
+
 void MCMC::SetInitialTrial(const ParameterDict &trial_)
 {
     fInitialTrial = trial_;
@@ -196,7 +207,12 @@ MCMC::Optimise(TestStatistic *testStat_)
         // c. Decide whethere to step there or not
         bool accepted = StepAccepted(proposedStep);
 
-        // d. log
+        // d. log (save proposed steps conforme option)
+        if(fSaveProposedSteps){
+        	fSamples.FillTree(fProposedStep, fProposedVal, accepted);
+        }else{
+        	fSamples.FillTree(fCurrentStep, fCurrentVal, accepted);
+		}
         fSamples.Fill(fCurrentStep, fCurrentVal, accepted);
     }
     std::cout << "MCMC:: acceptance rate = " << fSamples.GetAcceptanceRate()
@@ -211,21 +227,29 @@ MCMC::Optimise(TestStatistic *testStat_)
 
 bool MCMC::StepAccepted(const ParameterDict &proposedStep_)
 {
+
+   	fProposedStep = proposedStep_;
+
     // dont step outside of the fit region
     for (ParameterDict::const_iterator it = fCurrentStep.begin();
          it != fCurrentStep.end(); ++it)
     {
-        if (proposedStep_.at(it->first) < fMinima.at(it->first) || proposedStep_.at(it->first) > fMaxima.at(it->first))
+        if (proposedStep_.at(it->first) < fMinima.at(it->first) || proposedStep_.at(it->first) > fMaxima.at(it->first)){
+		   	fProposedVal = std::numeric_limits<double>::quiet_NaN(); //store "nan" in case 
             return false;
+		}
     }
 
-    pTestStatistic->SetParameters(proposedStep_);
-    double proposedVal = pTestStatistic->Evaluate();
 
-    if (fFlipSign)
-    {
-        proposedVal = -proposedVal;
-    }
+	pTestStatistic->SetParameters(proposedStep_);
+	double proposedVal = pTestStatistic->Evaluate();
+
+	if (fFlipSign)
+	{
+	    proposedVal = -proposedVal;
+	}
+	
+  	fProposedVal  = proposedVal;
 
     if (fCurrentVal > fMaxVal)
     {
