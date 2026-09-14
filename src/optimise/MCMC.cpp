@@ -229,18 +229,6 @@ bool MCMC::StepAccepted(const ParameterDict &proposedStep_)
 {
 
    	fProposedStep = proposedStep_;
-
-    // dont step outside of the fit region
-    for (ParameterDict::const_iterator it = fCurrentStep.begin();
-         it != fCurrentStep.end(); ++it)
-    {
-        if (proposedStep_.at(it->first) < fMinima.at(it->first) || proposedStep_.at(it->first) > fMaxima.at(it->first)){
-		   	fProposedVal = std::numeric_limits<double>::quiet_NaN(); //store "nan" in case 
-            return false;
-		}
-    }
-
-
 	pTestStatistic->SetParameters(proposedStep_);
 	double proposedVal = pTestStatistic->Evaluate();
 
@@ -250,6 +238,15 @@ bool MCMC::StepAccepted(const ParameterDict &proposedStep_)
 	}
 	
   	fProposedVal  = proposedVal;
+
+    // dont step outside of the fit region
+    for (ParameterDict::const_iterator it = fCurrentStep.begin();
+         it != fCurrentStep.end(); ++it)
+    {
+        if (proposedStep_.at(it->first) < fMinima.at(it->first) || proposedStep_.at(it->first) > fMaxima.at(it->first)){
+            return false;
+		}
+    }
 
     if (fCurrentVal > fMaxVal)
     {
