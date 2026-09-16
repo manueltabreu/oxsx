@@ -208,12 +208,12 @@ MCMC::Optimise(TestStatistic *testStat_)
         bool accepted = StepAccepted(proposedStep);
 
         // d. log (save proposed steps conforme option)
+        fSamples.Fill(fCurrentStep, fCurrentVal, accepted);
         if(fSaveProposedSteps){
         	fSamples.FillTree(fProposedStep, fProposedVal, accepted);
         }else{
         	fSamples.FillTree(fCurrentStep, fCurrentVal, accepted);
 		}
-        fSamples.Fill(fCurrentStep, fCurrentVal, accepted);
     }
     std::cout << "MCMC:: acceptance rate = " << fSamples.GetAcceptanceRate()
               << std::endl;
